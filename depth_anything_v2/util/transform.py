@@ -1,5 +1,32 @@
 import numpy as np
 import cv2
+import torch
+from torchvision.transforms import Compose, Normalize, Resize, ToTensor
+
+
+model_image_size = {
+    "vitt": 280,
+    "vits": 518,
+    "vitb": 518,
+    "vitl": 518,
+    "vitg": 518
+}
+
+
+def get_transform(input_size=model_image_size['vitl']):
+    return Compose([
+        Resize(
+            width=input_size,
+            height=input_size,
+            resize_target=False,
+            keep_aspect_ratio=True,
+            ensure_multiple_of=14,
+            resize_method='lower_bound',
+            image_interpolation_method=cv2.INTER_CUBIC,
+        ),
+        NormalizeImage(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        PrepareForNet(),
+    ])
 
 
 class Resize(object):
@@ -145,7 +172,9 @@ class PrepareForNet(object):
 
     def __call__(self, sample):
         image = np.transpose(sample["image"], (2, 0, 1))
-        sample["image"] = np.ascontiguousarray(image).astype(np.float32)
+        image /= 255.0
+        image = np.ascontiguousarray(image).astype(np.float32)
+        sample["image"] = torch.from_numpy(image).unsqueeze(0)
 
         if "depth" in sample:
             depth = sample["depth"].astype(np.float32)

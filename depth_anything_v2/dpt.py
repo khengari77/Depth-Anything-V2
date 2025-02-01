@@ -185,38 +185,11 @@ class DepthAnythingV2(nn.Module):
         return depth.squeeze(1)
     
     @torch.no_grad()
-    def infer_image(self, raw_image, input_size=518):
-        image, (h, w) = self.image2tensor(raw_image, input_size)
+    def infer_image(self, input_tensor, height, width): 
         
-        depth = self.forward(image)
+        depth = self.forward(input_tensor)
         
-        depth = F.interpolate(depth[:, None], (h, w), mode="bilinear", align_corners=True)[0, 0]
+        depth = F.interpolate(depth[:, None], (height, width), mode="bilinear", align_corners=True)[0, 0]
         
         return depth.cpu().numpy()
     
-    def image2tensor(self, raw_image, input_size=518):        
-        transform = Compose([
-            Resize(
-                width=input_size,
-                height=input_size,
-                resize_target=False,
-                keep_aspect_ratio=True,
-                ensure_multiple_of=14,
-                resize_method='lower_bound',
-                image_interpolation_method=cv2.INTER_CUBIC,
-            ),
-            NormalizeImage(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-            PrepareForNet(),
-        ])
-        
-        h, w = raw_image.shape[:2]
-        
-        image = cv2.cvtColor(raw_image, cv2.COLOR_BGR2RGB) / 255.0
-        
-        image = transform({'image': image})['image']
-        image = torch.from_numpy(image).unsqueeze(0)
-        
-        DEVICE = 'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu'
-        image = image.to(DEVICE)
-        
-        return image, (h, w)
