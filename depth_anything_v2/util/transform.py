@@ -174,8 +174,8 @@ class PrepareForNet(object):
     def __call__(self, sample):
         image = np.transpose(sample["image"], (2, 0, 1))
         image /= 255.0
-        image = np.ascontiguousarray(image).astype(np.float32)
-        sample["image"] = torch.from_numpy(image).unsqueeze(0)
+        sample["image"] = np.ascontiguousarray(image).astype(np.float32)
+         
 
         if "depth" in sample:
             depth = sample["depth"].astype(np.float32)
