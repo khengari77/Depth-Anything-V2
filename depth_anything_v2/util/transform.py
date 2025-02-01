@@ -13,7 +13,8 @@ model_image_size = {
 }
 
 
-def get_transform(input_size=model_image_size['vitl']):
+def get_transform(model='vitl'):
+    input_size = model_image_size[model]
     return Compose([
         Resize(
             width=input_size,
