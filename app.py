@@ -25,6 +25,7 @@ css = """
 """
 DEVICE = 'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu'
 model_configs = {
+    'vitt': {'encoder': 'vitt', 'features': 48, 'out_channels': [36, 72, 144, 288]},
     'vits': {'encoder': 'vits', 'features': 64, 'out_channels': [48, 96, 192, 384]},
     'vitb': {'encoder': 'vitb', 'features': 128, 'out_channels': [96, 192, 384, 768]},
     'vitl': {'encoder': 'vitl', 'features': 256, 'out_channels': [256, 512, 1024, 1024]},

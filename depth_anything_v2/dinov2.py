@@ -336,6 +336,20 @@ def init_weights_vit_timm(module: nn.Module, name: str = ""):
             nn.init.zeros_(module.bias)
 
 
+def vit_tiny(patch_size=16, num_register_tokens=0, **kwargs):
+    model = DinoVisionTransformer(
+        patch_size=patch_size,
+        embed_dim=192,
+        depth=6,
+        num_heads=4,
+        mlp_ratio=4,
+        block_fn=partial(Block, attn_class=MemEffAttention),
+        num_register_tokens=num_register_tokens,
+        **kwargs,
+    )
+    return model
+
+
 def vit_small(patch_size=16, num_register_tokens=0, **kwargs):
     model = DinoVisionTransformer(
         patch_size=patch_size,
@@ -397,14 +411,22 @@ def vit_giant2(patch_size=16, num_register_tokens=0, **kwargs):
 
 def DINOv2(model_name):
     model_zoo = {
+        "vitt": vit_tiny,    
         "vits": vit_small, 
         "vitb": vit_base, 
         "vitl": vit_large, 
         "vitg": vit_giant2
     }
+    model_image_size = {
+        "vitt": 280,
+        "vits": 518,
+        "vitb": 518,
+        "vitl": 518,
+        "vitg": 518
+    }
     
     return model_zoo[model_name](
-        img_size=518,
+        img_size=model_image_size[model_name],
         patch_size=14,
         init_values=1.0,
         ffn_layer="mlp" if model_name != "vitg" else "swiglufused",
