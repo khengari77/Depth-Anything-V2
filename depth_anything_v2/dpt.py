@@ -162,7 +162,7 @@ class DepthAnythingV2(nn.Module):
         super(DepthAnythingV2, self).__init__()
         
         self.intermediate_layer_idx = {
-            'vitt': [2, 5, 8, 11],
+            'vitt': [1, 2, 4, 5],
             'vits': [2, 5, 8, 11],
             'vitb': [2, 5, 8, 11], 
             'vitl': [4, 11, 17, 23], 
